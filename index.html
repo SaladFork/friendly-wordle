@@ -345,7 +345,7 @@
         document
           .querySelector('.share-button')
           .addEventListener('click', () => {
-            navigator.clipboard.writeText('Friendle 1 1/1\n🟩🟩🟩🟩🟩')
+            navigator.clipboard.writeText('Friendle 1 1/1\n\n🟩🟩🟩🟩🟩')
             document.querySelector('.copy-success').classList.add('show')
             if (copiedTimer) clearTimeout(copiedTimer)
             copiedTimer = window.setTimeout(() => {
