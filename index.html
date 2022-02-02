@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Friendle: Friendly Wordle</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⬆️</text></svg>"
+    />
+  </head>
+
+  <style type="text/css">
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+      background-color: #121213;
+      color: #d7dadc;
+    }
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    .header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #3a3a3c;
+    }
+    .header h1 {
+      text-transform: uppercase;
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: 0.2rem;
+      text-align: center;
+      pointer-events: none;
+    }
+    .info {
+      border-radius: 50%;
+      border: 2px solid #565758;
+      color: #565758;
+      width: 22px;
+      aspect-ratio: 1;
+      text-align: center;
+      font-weight: 700;
+    }
+    .game-board {
+      padding: 10px;
+      margin: 0 auto;
+    }
+    .row {
+      display: flex;
+      justify-content: center;
+    }
+    .letter {
+      width: 62px;
+      height: 62px;
+      border: 2px solid #3a3a3c;
+      margin: 3px;
+      font-size: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    .letter.correct {
+      background-color: #558c51;
+    }
+    .keyboard {
+      margin-top: 20px;
+    }
+    .keyboard-letter,
+    .keyboard-function {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 43px;
+      height: 58px;
+      margin: 4px;
+      background-color: #818384;
+      font-size: 14px;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+      text-transform: uppercase;
+      user-select: none;
+    }
+    .keyboard-function {
+      width: initial;
+      padding-left: 8px;
+      padding-right: 8px;
+      font-size: 12px;
+    }
+    .keyboard-letter.correct {
+      background-color: #558c51;
+    }
+    .tooltip-container {
+      position: relative;
+      cursor: help;
+    }
+    .tooltip {
+      display: none;
+      position: absolute;
+      top: 20px;
+      right: 0;
+      border: 2px solid #3a3a3c;
+      border-radius: 4px;
+      background: #121213;
+      padding: 8px;
+      color: #d7dadc;
+      font-weight: normal;
+      text-align: left;
+      width: 300px;
+      pointer-events: none;
+    }
+    .tooltip p + p {
+      margin-top: 8px;
+    }
+    .tooltip a {
+      color: white;
+    }
+    .tooltip-container:hover .tooltip {
+      display: block;
+    }
+    .overlay {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal {
+      background-color: #121213;
+      border-radius: 8px;
+      padding: 16px;
+      width: 400px;
+    }
+    .modal-header {
+      margin-bottom: 5px;
+      text-align: center;
+    }
+    .share-button {
+      background-color: #558c51;
+      border: 0;
+      width: 180px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #d7dadc;
+      text-transform: uppercase;
+      font-size: 20px;
+      font-weight: 700;
+      border-radius: 4px;
+      margin: 20px auto 0;
+      cursor: pointer;
+    }
+    .show {
+      visibility: visible;
+    }
+    .hide:not(.show) {
+      visibility: hidden;
+    }
+    .copy-success {
+      text-align: center;
+    }
+  </style>
+  <body>
+    <div class="container">
+      <header class="header">
+        <h1>Friendle</h1>
+        <div class="info tooltip-container">
+          ?
+          <div class="tooltip">
+            <p>
+              You've probably played
+              <a href="https://www.powerlanguage.co.uk/wordle/">Wordle</a>, the
+              viral word game. You may have also played
+              <a href="https://qntm.org/files/absurdle/absurdle.html">
+                Absurdle </a
+              >, the adversarial version that actively works against you.
+            </p>
+
+            <p>
+              Now introducing <strong>Friendle</strong>, a variant that tries to
+              help you!
+            </p>
+          </div>
+        </div>
+      </header>
+
+      <div class="game-board">
+        <div class="row">
+          <div class="letter"></div>
+          <div class="letter"></div>
+          <div class="letter"></div>
+          <div class="letter"></div>
+          <div class="letter"></div>
+        </div>
+        <div class="row">
+          <div class="letter"></div>
+          <div class="letter"></div>
+          <div class="letter"></div>
+          <div class="letter"></div>
+          <div class="letter"></div>
+        </div>
+        <div class="row">
+          <div class="letter"></div>
+          <div class="letter"></div>
+          <div class="letter"></div>
+          <div class="letter"></div>
+          <div class="letter"></div>
+        </div>
+        <div class="row">
+          <div class="letter"></div>
+          <div class="letter"></div>
+          <div class="letter"></div>
+          <div class="letter"></div>
+          <div class="letter"></div>
+        </div>
+        <div class="row">
+          <div class="letter"></div>
+          <div class="letter"></div>
+          <div class="letter"></div>
+          <div class="letter"></div>
+          <div class="letter"></div>
+        </div>
+        <div class="row">
+          <div class="letter"></div>
+          <div class="letter"></div>
+          <div class="letter"></div>
+          <div class="letter"></div>
+          <div class="letter"></div>
+        </div>
+      </div>
+
+      <div class="keyboard">
+        <div class="row">
+          <div class="keyboard-letter">Q</div>
+          <div class="keyboard-letter">W</div>
+          <div class="keyboard-letter">E</div>
+          <div class="keyboard-letter">R</div>
+          <div class="keyboard-letter">T</div>
+          <div class="keyboard-letter">Y</div>
+          <div class="keyboard-letter">U</div>
+          <div class="keyboard-letter">I</div>
+          <div class="keyboard-letter">O</div>
+          <div class="keyboard-letter">P</div>
+        </div>
+        <div class="row">
+          <div class="keyboard-letter">A</div>
+          <div class="keyboard-letter">S</div>
+          <div class="keyboard-letter">D</div>
+          <div class="keyboard-letter">F</div>
+          <div class="keyboard-letter">G</div>
+          <div class="keyboard-letter">H</div>
+          <div class="keyboard-letter">J</div>
+          <div class="keyboard-letter">K</div>
+          <div class="keyboard-letter">L</div>
+        </div>
+        <div class="row">
+          <div class="keyboard-function">Enter</div>
+          <div class="keyboard-letter">Z</div>
+          <div class="keyboard-letter">X</div>
+          <div class="keyboard-letter">C</div>
+          <div class="keyboard-letter">V</div>
+          <div class="keyboard-letter">B</div>
+          <div class="keyboard-letter">N</div>
+          <div class="keyboard-letter">M</div>
+          <div class="keyboard-function">Backspace</div>
+        </div>
+      </div>
+
+      <div class="overlay hide">
+        <div class="modal">
+          <h2 class="modal-header">You did it!</h2>
+          <button class="share-button">Share 📤</button>
+          <div class="copy-success hide">Copied to clipboard!</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      ;(function () {
+        let guess = ''
+        let guessing = true
+
+        const keyboardLetters = Array.from(
+          document.querySelectorAll('.keyboard-letter')
+        )
+        const letters = Array.from(document.querySelectorAll('.letter'))
+        const handleKeydown = event => {
+          if (!guessing) return
+
+          const key = event.key.toUpperCase()
+          // find keyboard letter that contains the key
+          const keyboardLetter = keyboardLetters.find(
+            keyboardLetter => keyboardLetter.textContent === key
+          )
+          if (keyboardLetter && guess.length < 5) {
+            guess += key
+            letters.find(letter => letter.textContent === '').textContent = key
+          } else if (event.key === 'Backspace' && guess.length > 0) {
+            letters[guess.length - 1].textContent = ''
+            guess = guess.slice(0, -1)
+          } else if (event.key === 'Enter' && guess.length === 5) {
+            guessing = false
+            letters.slice(0, 5).forEach(letter => {
+              letter.classList.add('correct')
+            })
+            keyboardLetters
+              .filter(keyboardLetter =>
+                guess.includes(keyboardLetter.textContent)
+              )
+              .forEach(keyboardLetter => {
+                keyboardLetter.classList.add('correct')
+              })
+            document.querySelector('.overlay').classList.add('show')
+          }
+        }
+        window.addEventListener('keydown', handleKeydown)
+        document.querySelector('.keyboard').addEventListener('click', event => {
+          if (!guessing) return
+          const target = event.target
+          if (
+            !target.classList.contains('keyboard-letter') &&
+            !target.classList.contains('keyboard-function')
+          )
+            return
+          const key = target.textContent
+          handleKeydown({ key })
+        })
+
+        let copiedTimer
+        document
+          .querySelector('.share-button')
+          .addEventListener('click', () => {
+            navigator.clipboard.writeText('Friendle 1 1/1\n🟩🟩🟩🟩🟩')
+            document.querySelector('.copy-success').classList.add('show')
+            if (copiedTimer) clearTimeout(copiedTimer)
+            copiedTimer = window.setTimeout(() => {
+              document.querySelector('.copy-success').classList.remove('show')
+            }, 1000)
+          })
+      })()
+    </script>
+  </body>
+</html>
